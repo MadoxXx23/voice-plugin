@@ -1,0 +1,34 @@
+{
+  "name": "opencode-voice-agent",
+  "version": "0.1.0-alpha.23",
+  "description": "OpenCode v2 TUI adapter for the local Voice Agent Go core",
+  "type": "module",
+  "license": "MIT",
+  "exports": {
+    ".": "./src/index.ts",
+    "./tui": "./src/tui.ts"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "cli.json",
+    "scripts"
+  ],
+  "dependencies": {
+    "@opencode/plugin": "^2.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "install:binary": "node scripts/install-binary.mjs",
+    "test": "node ../../scripts/check-plugin-syntax.mjs && node --test test/*.test.mjs",
+    "check:syntax": "node ../../scripts/check-plugin-syntax.mjs"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}
