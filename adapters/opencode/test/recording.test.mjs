@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { RecordingSession } from '../src/recording.mjs'
 
 test('toggle start/stop transcribes and cleans audio', async () => {
-  const dir=await mkdtemp(join(tmpdir(),'voice-agent-toggle-test-'))
+  const dir=await mkdtemp(join(tmpdir(),'voice-plugin-toggle-test-'))
   try {
     const bin=join(dir,'fake-capture')
     await writeFile(bin, '#!/usr/bin/env node\nconst fs=require("node:fs");const path=process.argv[3];fs.writeFileSync(path,Buffer.alloc(200));console.log("READY");process.stdin.once("data",()=>process.exit(0));\n', {mode:0o755})

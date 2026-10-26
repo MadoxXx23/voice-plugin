@@ -12,7 +12,7 @@ func TestSTTConfigFromJSON(t *testing.T) {
 	if err := os.WriteFile(path, []byte(`{"stt":{"modelPath":"/tmp/model.bin","language":"ru","translate":false}}`), 0600); err != nil {
 		t.Fatal(err)
 	}
-	t.Setenv("VOICE_AGENT_CONFIG", path)
+	t.Setenv("VOICE_PLUGIN_CONFIG", path)
 	t.Setenv("WHISPER_MODEL", "")
 	cfg := DefaultConfig()
 	if cfg.WhisperModel != "/tmp/model.bin" || cfg.STTLanguage != "ru" || cfg.STTTranslate {
@@ -32,7 +32,7 @@ func TestTranslateEnabled(t *testing.T) {
 	if err := os.WriteFile(path, []byte(`{"stt":{"language":"en","translate":true}}`), 0600); err != nil {
 		t.Fatal(err)
 	}
-	t.Setenv("VOICE_AGENT_CONFIG", path)
+	t.Setenv("VOICE_PLUGIN_CONFIG", path)
 	cfg := DefaultConfig()
 	args, err := whisperArgs(cfg, "a.wav", "out")
 	if err != nil || args[len(args)-1] != "-tr" {
@@ -40,7 +40,7 @@ func TestTranslateEnabled(t *testing.T) {
 	}
 }
 func TestSTTDefaultsAndInvalidLanguage(t *testing.T) {
-	t.Setenv("VOICE_AGENT_CONFIG", filepath.Join(t.TempDir(), "missing.json"))
+	t.Setenv("VOICE_PLUGIN_CONFIG", filepath.Join(t.TempDir(), "missing.json"))
 	cfg := DefaultConfig()
 	if cfg.STTLanguage != "auto" || cfg.STTTranslate {
 		t.Fatalf("defaults: %+v", cfg)

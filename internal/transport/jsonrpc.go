@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/voice-agent/voice-agent/internal/engine"
+	"github.com/voice-plugin/voice-plugin/internal/engine"
 )
 
 type request struct {

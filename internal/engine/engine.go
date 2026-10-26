@@ -23,10 +23,10 @@ type Engine struct{ Config Config }
 
 func DefaultConfig() Config {
 	cfg := Config{PiperModel: os.Getenv("PIPER_MODEL"), SoX: env("VOICE_SOX", "sox"), Whisper: env("VOICE_WHISPER", "whisper-cli"), Piper: env("VOICE_PIPER", "piper"), Player: env("VOICE_PLAYER", "play"), Duration: 8 * time.Second, STTLanguage: "auto"}
-	path := os.Getenv("VOICE_AGENT_CONFIG")
+	path := os.Getenv("VOICE_PLUGIN_CONFIG")
 	if path == "" && runtime.GOOS == "darwin" {
 		if home, err := os.UserHomeDir(); err == nil {
-			path = filepath.Join(home, "Library", "Application Support", "VoiceAgent", "config.json")
+			path = filepath.Join(home, "Library", "Application Support", "VoicePlugin", "config.json")
 		}
 	}
 	if path != "" {
@@ -95,7 +95,7 @@ func (e Engine) Transcribe(ctx context.Context, input string) (string, error) {
 	if _, err := os.Stat(input); err != nil {
 		return "", err
 	}
-	dir, err := os.MkdirTemp("", "voice-agent-whisper-")
+	dir, err := os.MkdirTemp("", "voice-plugin-whisper-")
 	if err != nil {
 		return "", err
 	}
@@ -118,7 +118,7 @@ func (e Engine) Record(ctx context.Context) (string, error) {
 	if e.Config.Duration <= 0 || e.Config.Duration > time.Minute*10 {
 		return "", errors.New("invalid recording duration")
 	}
-	dir, err := os.MkdirTemp("", "voice-agent-record-")
+	dir, err := os.MkdirTemp("", "voice-plugin-record-")
 	if err != nil {
 		return "", err
 	}
@@ -136,7 +136,7 @@ func (e Engine) Speak(ctx context.Context, message string) error {
 	if e.Config.PiperModel == "" {
 		return errors.New("PIPER_MODEL is required")
 	}
-	dir, err := os.MkdirTemp("", "voice-agent-speak-")
+	dir, err := os.MkdirTemp("", "voice-plugin-speak-")
 	if err != nil {
 		return err
 	}

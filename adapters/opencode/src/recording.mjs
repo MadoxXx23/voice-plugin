@@ -18,7 +18,7 @@ export class RecordingSession {
     if (this.state !== 'idle') return
     this.state = 'starting'; this.onState('starting')
     try {
-      this.dir = await mkdtemp(join(tmpdir(), 'voice-agent-record-'))
+      this.dir = await mkdtemp(join(tmpdir(), 'voice-plugin-record-'))
       const path = join(this.dir, 'recording.wav')
       const child = spawn(this.binary, ['capture', path], { shell:false, stdio:['pipe','pipe','pipe'] })
       this.child = child

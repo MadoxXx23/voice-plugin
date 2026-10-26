@@ -1,30 +1,75 @@
 name: release
+
 on:
   push:
     tags: ["v*"]
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Version without the leading v (must match adapters/opencode/package.json)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
 jobs:
-  test-and-build:
+  test:
+    name: Test
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
       - run: go test ./...
-      - run: ./scripts/release.sh "${GITHUB_REF_NAME#v}"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: voice-agent-release-archives
-          path: dist/releases/*
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: npm pack --pack-destination ../../dist/releases
-        working-directory: adapters/opencode
+      - working-directory: adapters/opencode
+        run: npm ci --no-audit --no-fund
+      - run: node --test scripts/*.test.mjs
+      - working-directory: adapters/opencode
+        run: npm test
+
+  build-and-release:
+    name: Build release
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - working-directory: adapters/opencode
+        run: npm ci --no-audit --no-fund
+      - name: Resolve version
+        id: version
+        run: |
+          version="${{ github.event_name == 'push' && github.ref_name || inputs.version }}"
+          echo "value=${version#v}" >> "$GITHUB_OUTPUT"
+      - name: Verify version matches package manifest
+        run: |
+          manifest="$(node -p "require('./adapters/opencode/package.json').version")"
+          if [ "$manifest" != "${{ steps.version.outputs.value }}" ]; then
+            echo "::error::Version ${{ steps.version.outputs.value }} does not match adapters/opencode/package.json ($manifest). Update the manifest or tag."
+            exit 1
+          fi
+      - run: ./scripts/release.sh "${{ steps.version.outputs.value }}"
+      - working-directory: adapters/opencode
+        run: npm pack --pack-destination ../../dist/releases
       - uses: actions/upload-artifact@v4
         with:
-          name: opencode-npm-package
-          path: dist/releases/*.tgz
+          name: voice-plugin-release-archives
+          path: dist/releases/*
+          if-no-files-found: error
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: voice-plugin ${{ steps.version.outputs.value }}
+          files: |
+            dist/releases/*

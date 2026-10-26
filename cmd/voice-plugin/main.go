@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/voice-agent/voice-agent/internal/engine"
-	"github.com/voice-agent/voice-agent/internal/transport"
+	"github.com/voice-plugin/voice-plugin/internal/engine"
+	"github.com/voice-plugin/voice-plugin/internal/transport"
 	"os"
 	"os/signal"
 	"strconv"
@@ -14,7 +14,7 @@ import (
 
 func main() {
 	if err := run(os.Args[1:]); err != nil {
-		fmt.Fprintln(os.Stderr, "voice-agent:", err)
+		fmt.Fprintln(os.Stderr, "voice-plugin:", err)
 		os.Exit(1)
 	}
 }
@@ -22,7 +22,7 @@ func run(args []string) error {
 	e := engine.Engine{Config: engine.DefaultConfig()}
 	ctx := context.Background()
 	if len(args) == 0 {
-		return fmt.Errorf("usage: voice-agent <serve|doctor|record|capture|transcribe|speak> [args]")
+		return fmt.Errorf("usage: voice-plugin <serve|doctor|record|capture|transcribe|speak> [args]")
 	}
 	switch args[0] {
 	case "serve":
