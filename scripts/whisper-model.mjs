@@ -9,7 +9,7 @@ import { pipeline } from 'node:stream/promises'
 export const MODEL_SHA256 = '60ed5bc3dd14eea856493d334349b405782ddcaf0028d4b5df4088345fba2efe'
 export const MODEL_BYTES = 147951465
 export const MODEL_URL = 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin'
-export const appDir = () => join(homedir(), 'Library', 'Application Support', 'VoiceAgent')
+export const appDir = () => join(homedir(), 'Library', 'Application Support', 'VoicePlugin')
 export const configPath = (dir = appDir()) => join(dir, 'config.json')
 export const modelPath = (dir = appDir()) => join(dir, 'models', 'whisper', 'ggml-base.bin')
 
@@ -46,7 +46,7 @@ export async function saveModelConfig(path, { dir = appDir() } = {}) {
   const target = configPath(dir)
   let config = {}
   try { config = JSON.parse(await readFile(target, 'utf8')) } catch (e) { if (e.code !== 'ENOENT') throw e }
-  if (!config || typeof config !== 'object' || Array.isArray(config)) throw new Error('Invalid VoiceAgent config')
+  if (!config || typeof config !== 'object' || Array.isArray(config)) throw new Error('Invalid VoicePlugin config')
   const updated = { ...config, stt: { ...(config.stt || {}), provider: 'whisper.cpp', model: 'base', modelPath: resolve(path), language: 'auto' } }
   const tmp = `${target}.${process.pid}.tmp`
   try { await writeFile(tmp, JSON.stringify(updated, null, 2) + '\n', { mode: 0o600, flag: 'wx' }); await rename(tmp, target) }

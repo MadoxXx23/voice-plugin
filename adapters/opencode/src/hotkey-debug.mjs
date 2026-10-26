@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises'
 import { homedir, platform } from 'node:os'
 import { join } from 'node:path'
 
-export const ACTION = 'voice-agent.record'
+export const ACTION = 'voice-plugin.record'
 export const DEFAULTS = { darwin: 'super+shift+r', linux: 'ctrl+alt+r', win32: 'ctrl+shift+r' }
 
 export async function hotkeyReport({ configDir = join(process.env.XDG_CONFIG_HOME || join(homedir(), '.config'), 'opencode'), os = platform(), terminal = process.env.TERM_PROGRAM || 'unknown', lastInvoked = null, now = new Date(), read = readFile } = {}) {
@@ -20,7 +20,7 @@ export async function hotkeyReport({ configDir = join(process.env.XDG_CONFIG_HOM
   }
   const last = lastInvoked ? new Date(lastInvoked).toISOString() : 'not observed in this plugin instance'
   return [
-    'Voice Agent — Hotkey Diagnostic',
+    'Voice Plugin — Hotkey Diagnostic',
     `Platform: ${os}`,
     `Terminal: ${terminal}`,
     `Configured ${ACTION}: ${configured}`,
@@ -34,7 +34,7 @@ export async function hotkeyReport({ configDir = join(process.env.XDG_CONFIG_HOM
     '2. Press the physical hotkey, then run /hotkey_record_debug again.',
     '3. If the timestamp does not change, the key event did not reach this handler.',
     '4. In iTerm2 check Settings > Profiles > Keys > Key Mappings and the keyboard shortcut conflicts.',
-    '5. To test a remap, map Command+Shift+R to Send Hex Code 0x07 and set voice-agent.record to ctrl+g in cli.json, then restart OpenCode.',
+    '5. To test a remap, map Command+Shift+R to Send Hex Code 0x07 and set voice-plugin.record to ctrl+g in cli.json, then restart OpenCode.',
     '',
     'LIMITATION: The plugin cannot observe global macOS keystrokes, iTerm2 interception, or other OpenCode handlers. It cannot identify the exact intercepting application.',
   ].join('\n')

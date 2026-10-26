@@ -6,13 +6,13 @@ import { RecordingSession } from './recording.mjs'
 import { hotkeyReport } from './hotkey-debug.mjs'
 
 // Binary discovery is intentionally explicit; no downloads or shell execution.
-const binary = process.env.VOICE_AGENT_BIN || 'voice-agent'
+const binary = process.env.VOICE_PLUGIN_BIN || 'voice-plugin'
 
 interface Reply { jsonrpc: '2.0'; id: number; result?: {text?: string; [key:string]:unknown}; error?: {code:number; message:string} }
 function request(method: string, params: Record<string, unknown> = {}): Promise<Reply['result']> {
   return new Promise((resolve, reject) => {
     const child = spawn(binary, ['serve'], { stdio: ['pipe', 'pipe', 'pipe'], shell: false })
-    const timer = setTimeout(() => { child.kill(); reject(new Error('voice-agent timed out')) }, method === 'voice.record' ? 150_000 : 15_000)
+    const timer = setTimeout(() => { child.kill(); reject(new Error('voice-plugin timed out')) }, method === 'voice.record' ? 150_000 : 15_000)
     let stdout = '', stderr = '', done = false
     function finish(error?: Error, result?: Reply['result']) {
       if (done) return
@@ -33,18 +33,18 @@ function request(method: string, params: Record<string, unknown> = {}): Promise<
         else finish(undefined, reply.result)
       } catch (error) { finish(error as Error) }
     })
-    child.on('close', (code) => finish(new Error(`voice-agent exited ${code}: ${stderr}`)))
+    child.on('close', (code) => finish(new Error(`voice-plugin exited ${code}: ${stderr}`)))
     child.stdin.end(JSON.stringify({jsonrpc:'2.0',id:1,method,params}) + '\n')
   })
 }
 
 export default Plugin.define({
-  id: 'voice-agent.tui',
+  id: 'voice-plugin.tui',
   setup(ctx) {
     const status = installRecordingStatus(ctx)
     const session = new RecordingSession(binary, request, (state) => {
       status.setState(state)
-      if (state === 'recording') ctx.ui.toast.show({message:'Recording... use your Voice Agent shortcut or /r to stop',variant:'info'})
+      if (state === 'recording') ctx.ui.toast.show({message:'Recording... use your Voice Plugin shortcut or /r to stop',variant:'info'})
       if (state === 'transcribing') ctx.ui.toast.show({message:'Transcribing voice...',variant:'info'})
     })
     let lastRecordInvocation: string | null = null
@@ -55,7 +55,7 @@ export default Plugin.define({
         if (!response) return
         const transcript = response.text?.trim() || ''
         if (!transcript) {
-          await ctx.ui.dialog.alert({title: 'Voice Agent', message: 'No speech recognized.'})
+          await ctx.ui.dialog.alert({title: 'Voice Plugin', message: 'No speech recognized.'})
           return
         }
         try {
@@ -65,7 +65,7 @@ export default Plugin.define({
           })
         } catch (error) {
           await ctx.ui.dialog.alert({
-            title: 'Voice Agent — insert failed',
+            title: 'Voice Plugin — insert failed',
             message: `${String(error)}\n\nYour transcription:\n${transcript}`,
           })
         }
@@ -77,28 +77,28 @@ export default Plugin.define({
       mode: 'global', priority: 10,
       commands: [
         {
-          id: 'voice-agent.record', title: 'Toggle voice recording', group: 'Voice Agent',
+          id: 'voice-plugin.record', title: 'Toggle voice recording', group: 'Voice Plugin',
           palette: true, slash: {name: 'r'},
           run: toggleRecording,
         },
         {
-          id: 'voice-agent.hotkey_record_debug', title: 'Diagnose voice recording hotkey', group: 'Voice Agent',
+          id: 'voice-plugin.hotkey_record_debug', title: 'Diagnose voice recording hotkey', group: 'Voice Plugin',
           palette: true, slash: {name: 'hotkey_record_debug'},
           run: async () => {
             const message = await hotkeyReport({lastInvoked: lastRecordInvocation})
-            await ctx.ui.dialog.alert({title: 'Voice Agent — Hotkey Debug', message})
+            await ctx.ui.dialog.alert({title: 'Voice Plugin — Hotkey Debug', message})
           },
         },
         {
-          id:'voice-agent.doctor', title:'Check Voice Agent', group:'Voice Agent',
+          id:'voice-plugin.doctor', title:'Check Voice Plugin', group:'Voice Plugin',
           palette:true, slash:{name:'voice-doctor'},
           run: async () => {
-            try {const report = await request('voice.doctor'); await ctx.ui.dialog.alert({title:'Voice Agent Doctor', message:JSON.stringify(report,null,2)})}
+            try {const report = await request('voice.doctor'); await ctx.ui.dialog.alert({title:'Voice Plugin Doctor', message:JSON.stringify(report,null,2)})}
             catch(error){ctx.ui.toast.show({message:String(error),variant:'error'})}
           }
         }
       ],
-      bindings: ['voice-agent.record', 'voice-agent.hotkey_record_debug', 'voice-agent.doctor'],
+      bindings: ['voice-plugin.record', 'voice-plugin.hotkey_record_debug', 'voice-plugin.doctor'],
     }))
     return () => { void session.cleanup(); status.dispose() }
   }

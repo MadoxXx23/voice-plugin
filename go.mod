@@ -1,3 +1,3 @@
-module github.com/voice-agent/voice-agent
+module github.com/voice-plugin/voice-plugin
 
 go 1.23

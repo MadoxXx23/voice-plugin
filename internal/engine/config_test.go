@@ -12,7 +12,7 @@ func TestModelConfigAndEnvOverride(t *testing.T) {
 	if err := os.WriteFile(path, []byte(`{"stt":{"modelPath":"/tmp/default-model.bin"}}`), 0600); err != nil {
 		t.Fatal(err)
 	}
-	t.Setenv("VOICE_AGENT_CONFIG", path)
+	t.Setenv("VOICE_PLUGIN_CONFIG", path)
 	t.Setenv("WHISPER_MODEL", "")
 	if got := DefaultConfig().WhisperModel; got != "/tmp/default-model.bin" {
 		t.Fatalf("got %q", got)

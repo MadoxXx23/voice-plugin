@@ -20,7 +20,7 @@ export function installCommands(checks) {
 export async function main({ platformName = platform(), cpu = arch(), releaseDir, configDir, binDir, dataDir = appDir(), offline = false, installModelFn = installModel } = {}) {
   if (platformName !== 'darwin') throw new Error('This installer is for macOS only. Use scripts/install-opencode.mjs on other systems.')
   if (!['arm64', 'x64'].includes(cpu)) throw new Error(`Unsupported Mac architecture: ${cpu}`)
-  console.log(`Voice Agent macOS setup (${cpu === 'arm64' ? 'Apple Silicon' : 'Intel'})`)
+  console.log(`Voice Plugin macOS setup (${cpu === 'arm64' ? 'Apple Silicon' : 'Intel'})`)
   const result = await setup({ releaseDir, configDir, binDir })
   const checks = macPrerequisites()
   let model = process.env.WHISPER_MODEL

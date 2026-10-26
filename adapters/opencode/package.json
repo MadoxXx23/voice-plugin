@@ -1,7 +1,7 @@
 {
-  "name": "opencode-voice-agent",
+  "name": "voice-plugin",
   "version": "0.1.0-alpha.23",
-  "description": "OpenCode v2 TUI adapter for the local Voice Agent Go core",
+  "description": "OpenCode v2 TUI adapter for the local Voice Plugin Go core",
   "type": "module",
   "license": "MIT",
   "exports": {

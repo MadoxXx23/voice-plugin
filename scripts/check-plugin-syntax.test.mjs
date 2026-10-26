@@ -12,7 +12,7 @@ test('all shipped OpenCode TS/TSX files parse', () => {
   assert.equal(checkPluginSyntax({ts}), 3)
 })
 test('rejects malformed else branch before packaging', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'voice-agent-syntax-'))
+  const dir = await mkdtemp(join(tmpdir(), 'voice-plugin-syntax-'))
   try {
     const src = resolve('adapters/opencode/src')
     const dst = join(dir, 'adapters/opencode/src')

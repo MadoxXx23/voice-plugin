@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { createHash } from 'node:crypto'
 import { installModel, saveModelConfig, modelPath, validModel } from './whisper-model.mjs'
 test('downloads, verifies and reuses model without a second request', async () => {
- const dir = await mkdtemp(join(tmpdir(),'voice-agent-model-'))
+ const dir = await mkdtemp(join(tmpdir(),'voice-plugin-model-'))
  const content = Buffer.from('fake-whisper-model')
  const sha256 = createHash('sha256').update(content).digest('hex')
  let count = 0
@@ -24,7 +24,7 @@ test('downloads, verifies and reuses model without a second request', async () =
  } finally { await rm(dir,{recursive:true,force:true}) }
 })
 test('rejects tampered downloads without leaving a model', async () => {
- const dir = await mkdtemp(join(tmpdir(),'voice-agent-model-'))
+ const dir = await mkdtemp(join(tmpdir(),'voice-plugin-model-'))
  try {
   await assert.rejects(installModel({dir,bytes:4,sha256:'a'.repeat(64),fetchImpl:async()=>new Response('bad!')}),/checksum/)
   assert.equal(await validModel(modelPath(dir),{bytes:4,sha256:'a'.repeat(64)}),false)
